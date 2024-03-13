@@ -33,7 +33,7 @@ streamlit run main.py
   
   ![Company Analysis - Equity](images/Analysis2.png "Company Analysis - Equity")
   
-  ![Company Analysis - Return On Assets (ROA)](Analysis3.png "Company Analysis - Return On Assets (ROA)")
+  ![Company Analysis - Return On Assets (ROA)](images/Analysis3.png "Company Analysis - Return On Assets (ROA)")
   
 - **Company to Company Comparison**: Evaluate and compare the financial standing of two companies side-by-side.
   
