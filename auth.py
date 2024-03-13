@@ -4,7 +4,7 @@ import streamlit as st
 import os
 from styles import apply_custom_css
 
-# Define sector mappings
+# Define sector mappings for better readability and easy mapping from code to sector name.
 sector_mappings = {
     'A': 'Agriculture, hunting, forestry and fishing',
     'B': 'Raw material extraction',
@@ -29,41 +29,38 @@ sector_mappings = {
 }
 
 def get_db_connection():
-    # Assuming your database file is in the root directory of your project
+    # Establish a connection to the SQLite database by dynamically getting its path.
+    # This ensures the database can be accessed regardless of the operating system.
     db_path = os.path.join(os.path.dirname(__file__), 'cvr_database.db')
     return sqlite3.connect(db_path)
 
 def setup_database():
+    # Setup database by connecting and ensuring the 'users' table exists, creating it if not.
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    # Check if the 'users' table exists
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
     table_exists = cursor.fetchone()
 
-    # If the table exists and you want to reset it, uncomment the following lines
-    # if table_exists:
-    #     cursor.execute("DROP TABLE users")
-
-    # Create the 'users' table if it doesn't exist
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            username TEXT PRIMARY KEY,
-            password TEXT NOT NULL,
-            sectors TEXT
-        )
-    """)
+    if not table_exists:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY,
+                password TEXT NOT NULL,
+                sectors TEXT
+            )
+        """)
     conn.commit()
 
 def hash_password(password):
-    """Hash a password for storing."""
+    # Hash a password using bcrypt, providing security against password leakage.
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 def verify_password(stored_password, provided_password):
-    """Verify a stored password against one provided by user"""
+    # Check if a provided password matches the stored hash, securing user authentication.
     return bcrypt.checkpw(provided_password.encode('utf-8'), stored_password)
 
 def login_user(username, password):
+    # Authenticate a user by matching the username and password with database records.
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
@@ -71,6 +68,7 @@ def login_user(username, password):
     return user_data and verify_password(user_data[0], password)
 
 def register_user(username, password, sectors):
+    # Register a new user with a hashed password and selected sectors of interest.
     conn = get_db_connection()
     cursor = conn.cursor()
     hashed_password = hash_password(password)
@@ -83,12 +81,16 @@ def register_user(username, password, sectors):
         return False
 
 def toggle_view():
+    # Toggle the view between login and registration forms in the Streamlit interface.
     st.session_state['show_login'] = not st.session_state['show_login']
 
 def run_auth_page():
-    apply_custom_css()
-    setup_database()  # Ensure the database table is set up
+    # Main function to run the authentication page, with CSS styling, database setup, and form handling.
+    apply_custom_css()  # Apply the custom CSS to style the Streamlit app
+    setup_database()  # Ensure the user database is ready for authentication processes
+
     if st.session_state.show_login:
+        # Display login form and process authentication.
         with st.form("login_form"):
             st.write("## Login")
             login_username = st.text_input("Username", key="login_username")
@@ -104,9 +106,10 @@ def run_auth_page():
                 st.error("Invalid username or password.")
 
         if st.button("Register"):
+            # Toggle to the registration view when the Register button is clicked.
             toggle_view()
-
     else:
+        # Display registration form and process new account creation.
         with st.form("register_form"):
             st.write("## Register New Account")
             reg_username = st.text_input("Username", key="reg_username")
