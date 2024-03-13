@@ -3,6 +3,7 @@ import sqlite3
 import plotly.express as px
 import pandas as pd
 from styles import apply_custom_css
+import os
 
 # Define sector mappings
 sector_mappings = {
@@ -29,7 +30,9 @@ sector_mappings = {
 }
 
 def get_db_connection():
-    return sqlite3.connect(r"C:\Users\WCLENG-9\Desktop\Odingo Project\cvr_database.db")
+    # Assuming your database file is in the root directory of your project
+    db_path = os.path.join(os.path.dirname(__file__), 'cvr_database.db')
+    return sqlite3.connect(db_path)
 
 def setup_database():
     conn = get_db_connection()
