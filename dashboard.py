@@ -340,7 +340,7 @@ def run_dashboard():
             # Convert the fetched data into a DataFrame
             trends_df = pd.DataFrame(trends_data, columns=['Year', 'Average Profit/Loss', 'Average Equity'])
             # Create a line chart for the financial trends
-            fig = px.line(trends_df, x='Year', y=['Average Profit/Loss', 'Average Equity'], title = f'Financial Trends for {sector_choice}', markers=True)
+            fig = px.line(trends_df, x='Year', y=['Average Profit/Loss', 'Average Equity'], title = f'Financial Trends for the {sector_choice}' sector, markers=True)
             # Configure chart axes and layout
             fig.update_xaxes(title_text='Year')
             fig.update_yaxes(title_text='Values in DKK', tickprefix="DKK")
@@ -369,7 +369,7 @@ def run_dashboard():
             # Convert the fetched data into a DataFrame
             health_df = pd.DataFrame(health_data, columns=['Year', 'Average ROA', 'Average ROI', 'Average Solvency Ratio'])
             # Create a line chart for the financial health indicators
-            fig = px.line(health_df, x='Year', y=['Average ROA', 'Average ROI', 'Average Solvency Ratio'], title=f'Financial Health Indicators of {sector_choice}', markers=True)
+            fig = px.line(health_df, x='Year', y=['Average ROA', 'Average ROI', 'Average Solvency Ratio'], title=f'Financial Health Indicators for the {sector_choice} sector', markers=True)
             # Configure chart axes and layout
             fig.update_xaxes(title_text='Year')
             fig.update_yaxes(title_text='Ratio/Percentage', tickprefix="DKK")
