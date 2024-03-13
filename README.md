@@ -1,5 +1,3 @@
-![image](https://github.com/akujuobichibuike/Danish-Business-Insights/assets/113009569/cae23777-0c0a-48da-8071-40723ee4efc8)# Danish Business Insights Platform
-
 ## Project Description
 The Danish Business Insights Platform is a web application designed to provide comprehensive financial analysis and insights into the Danish business sector. It caters to investors looking to make informed decisions by exploring financial trends, sector comparisons, and company-specific analyses.
 
@@ -30,16 +28,23 @@ streamlit run main.py
   ![Sector Comparison](images/sector-comparison.png "Sector Comparison")
   
 - **Company Analysis**: Conduct deep dives into the financial history and performance of individual companies.
+- 
   ![Company Analysis - Profit/Loss](images/Analysis1.png "Company Analysis - Profit/Loss")
+  
   ![Company Analysis - Equity](images/Analysis2.png "Company Analysis - Equity")
-  ![Company Analysis - Return On Assets (ROA)](images/company-analysis-roa.png "Company Analysis - Return On Assets (ROA)")
+  
+  ![Company Analysis - Return On Assets (ROA)](Analysis3.png "Company Analysis - Return On Assets (ROA)")
   
 - **Company to Company Comparison**: Evaluate and compare the financial standing of two companies side-by-side.
+  
   ![Company to Company Comparison - Profit/Loss](images/c2c1.png "Company to Company Comparison - Profit/Loss")
+  
   ![Company to Company Comparison - Equity](images/c2c2.png "Company to Company Comparison - Equity")
+  
   ![Company to Company Comparison - Return On Assets (ROA)](images/c2c3.png "Company to Company Comparison - Return on Assets (ROA)")
 
 - **Company Information**: Provides detailed insights into a specific company, including its sector, contact details, financial health, and operational purpose, aiding investors in making informed decisions about their investments.
+  
   ![Company Information](images/compinfo.png "Company Information")
  
 ## Technologies Used
@@ -59,16 +64,19 @@ Follow this step-by-step guide to navigate through the Danish Business Insights 
 2. **Landing Page**:
 - The landing page introduces the Danish Business Insights Platform with a brief description and visual elements that highlight the key functionalities.
 - Explore the features listed or proceed by clicking the “Get Started” button.
+  
   ![Landing Page](images/landing-page.png "Landing Page of Danish Business Insights Platform")
 
 3. **User Authentication**:
 - Upon clicking “Get Started”, you will be directed to the login page.
 - Existing users can log in with their credentials, while new users can register by providing a username, and password, and selecting sectors of interest.
+  
   ![User Authentication](images/user-authentication.png "User Authentication Page")
 
 4. **Dashboard Navigation**:
 - After logging in, you will access the dashboard, the central hub of analysis and data visualization.
 - The sidebar on the dashboard allows you to select different sectors and data views.
+
   ![Dashboard](images/dashboard.png "Dashboard View")
 
 5. **Interactive Data Views**:
