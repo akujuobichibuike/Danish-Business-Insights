@@ -1,12 +1,15 @@
-# main.py
-import streamlit as st
-from auth import run_auth_page
-from dashboard import run_dashboard
-from styles import apply_custom_css
+# Import the necessary modules
+import streamlit as st  # Streamlit library for building web apps
+from auth import run_auth_page  # Function to handle the authentication page logic
+from dashboard import run_dashboard  # Function to handle the dashboard logic
+from styles import apply_custom_css  # Function to apply custom CSS styles
 
 def show_landing_page():
-    apply_custom_css()  # Ensure the custom CSS is applied
-    st.title("Danish Business Insights Platform")
+    # Function to display the landing page of the web app
+    apply_custom_css()  # Apply the custom CSS styles to the Streamlit app
+    st.title("Danish Business Insights Platform")  # Display the main title of the app
+
+    # Display the introductory markdown text explaining the app's purpose and features
     st.markdown("""
     ## Discover Data-Driven Investment Opportunities
 
@@ -22,27 +25,30 @@ def show_landing_page():
     Embark on your journey to smarter investing by leveraging our platform’s in-depth analysis and sectoral insights of the Danish business environment.
     """)
 
+    # Button to start the authentication process or navigate to the next page
     if st.button("Get Started"):
-        st.session_state['page'] = 'auth'
+        st.session_state['page'] = 'auth'  # Change the session state to move to the authentication page
 
 def main():
-    apply_custom_css()
+    # Main function to control the app's flow
+    apply_custom_css()  # Apply the custom CSS styles to the Streamlit app
 
-    # Initialize session state variables
+    # Initialize session state variables if they are not already set
     if 'logged_in' not in st.session_state:
-        st.session_state.logged_in = False
+        st.session_state.logged_in = False  # Session state to track if the user is logged in
     if 'page' not in st.session_state:
-        st.session_state.page = 'landing'
+        st.session_state.page = 'landing'  # Session state to control the current page view
     if 'show_login' not in st.session_state:
-        st.session_state.show_login = True
+        st.session_state.show_login = True  # Session state to toggle between login and registration views
 
-    # Control flow based on session state
+    # Determine which page to display based on the session state
     if st.session_state.page == 'landing':
-        show_landing_page()
+        show_landing_page()  # Show the landing page
     elif st.session_state.page == 'auth' and not st.session_state.logged_in:
-        run_auth_page()
+        run_auth_page()  # Show the authentication page if not logged in
     elif st.session_state.logged_in:
-        run_dashboard()
+        run_dashboard()  # Show the dashboard page if logged in
 
+# Run the main function when the script is executed directly
 if __name__ == "__main__":
     main()
