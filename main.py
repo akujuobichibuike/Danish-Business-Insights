@@ -11,18 +11,19 @@ def show_landing_page():
 
     # Display the introductory markdown text explaining the app's purpose and features
     st.markdown("""
-    ## Discover Data-Driven Investment Opportunities
+    ## Discover Data-Driven Investment Opportunities 🚀
 
-    Welcome to our Investment Analysis Dashboard, tailored to deliver comprehensive insights into the Danish business landscape. This platform is designed to empower investors with detailed data, enabling informed decision-making and strategic investment in Denmark’s vibrant sectors.
+    Welcome to our Investment Analysis Dashboard, designed to empower investors with actionable insights into the Danish business landscape. Dive into data-driven analyses to make informed decisions and strategically invest in Denmark’s dynamic sectors.
 
-    **Explore our dashboard features:**
-    - **Financial Trends Analysis:** Gain insights into the financial dynamics of selected Danish sectors, tracking key metrics like average profit/loss and equity over time.
-    - **Financial Health Indicators:** Assess the financial vitality of sectors with critical indicators, including Return on Assets (ROA), Return on Investment (ROI), and solvency ratios.
-    - **Sector Comparison:** Benchmark the financial performance of chosen companies against the average metrics of their sectors, aiding in smarter investment choices.
-    - **Company Analysis:** Conduct thorough evaluations of individual companies, analyzing their financial trajectories and operational efficiencies over the years.
-    - **Company to Company Comparison:** Make comparative analyses between two companies, identifying superior investment prospects based on robust financial data.
-    
-    Embark on your journey to smarter investing by leveraging our platform’s in-depth analysis and sectoral insights of the Danish business environment.
+    **Dashboard Features:**
+    - **Financial Trends Analysis 📊:** Explore the financial dynamics of selected sectors, tracking key metrics like average profit/loss and equity.
+    - **Financial Health Indicators 💪:** Evaluate sectors' vitality through critical indicators such as Return on Assets (ROA), Return on Investment (ROI), and solvency ratios.
+    - **Sector Comparison ⚖️:** Compare the financial performance of companies against sector averages, identifying standout performers.
+    - **Company Analysis 🔍:** Delve into detailed financial trajectories and operational efficiencies of individual companies.
+    - **Multi-Company Comparison 🤝:** Conduct comparative analyses of multiple companies within a sector, unveiling the strongest investment prospects based on comprehensive financial data.
+    - **Hidden Gems 💎:** Uncover undervalued companies with strong financial health but recent profit dips, presenting potential rebound opportunities.
+
+    Embark on your journey to smarter investing with our platform’s in-depth analysis and sectoral insights. Elevate your investment strategy in the Danish business environment!
     """)
 
     # Button to start the authentication process or navigate to the next page
