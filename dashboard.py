@@ -278,79 +278,110 @@ def display_sector_comparison(cvr_number, sector_code, year_range, company_name,
         # Display a message if no data is available for comparison
         st.write(f"No data available for {company_name} or {sector_name} sector.")
 
-# Function to fetch and display financial data for two companies for comparison
-def fetch_financial_data_for_two_companies(cvr_number1, cvr_number2, year_range):
-    # Establish a connection to the database
+def style_hidden_gems_dataframe(df):
+    # Apply styling only to numerical columns that exist in the DataFrame
+    numerical_columns = ['Profit/Loss', 'Equity']  # Adjust based on actual data columns
+    
+    # Define a function to apply conditional styling
+    def apply_styling(value):
+        if isinstance(value, (int, float)):  # Check if the value is numeric
+            return f'background-color: {"#ff4d4d" if value < 0 else "#29a329"}'  # Deeper shades for negative and positive
+        return ''
+    
+    # Apply the styling function to the DataFrame and format the numbers
+    styled = df.style.applymap(apply_styling, subset=numerical_columns).format({
+        'Profit/Loss': "{:,.0f} DKK",  # Format Profit/Loss as currency
+        'Equity': "{:,.0f} DKK",  # Format Equity as currency
+    })
+    
+    return styled
+
+# Function to fetch and display financial data for multi-company comparison
+def fetch_financial_data_for_companies(cvr_numbers, year_range):
+    # Ensure cvr_numbers is a list
+    if not isinstance(cvr_numbers, list):
+        cvr_numbers = [cvr_numbers]
+
+    # Now cvr_numbers is guaranteed to be a list, so we can iterate over it
+    placeholders = ','.join('?' * len(cvr_numbers))  # Create a placeholder for each CVR number
+
+    # Your existing code to fetch data from the database...
     conn = get_db_connection()
-    # Create a cursor object to execute SQL queries
     cursor = conn.cursor()
-    # SQL query to select financial data for two companies over the given year range
-    query = """
-    SELECT cvr, year, profit_loss, equity, return_on_assets
-    FROM financials
-    WHERE cvr IN (?, ?) AND year BETWEEN ? AND ?
-    ORDER BY year, cvr
+    query = f"""
+    SELECT f.cvr, f.year, f.profit_loss, f.equity, f.return_on_assets
+    FROM financials f
+    INNER JOIN (
+        SELECT cvr, MAX(year) AS recent_year
+        FROM financials
+        WHERE cvr IN ({placeholders}) AND year BETWEEN ? AND ?
+        GROUP BY cvr
+    ) AS recent_f ON f.cvr = recent_f.cvr AND f.year = recent_f.recent_year
     """
-    # Combine the parameters into a single tuple
-    params = (cvr_number1, cvr_number2, year_range[0], year_range[1])
-    # Execute the query with the parameters
+    params = cvr_numbers + list(year_range)
     cursor.execute(query, params)
-    # Fetch all rows of the query result
+    return cursor.fetchall()
+
+# Function for finding hidding gems
+def get_hidden_gems(sector_code, year_range):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+    SELECT
+        c.name AS 'Company Name',
+        f.cvr AS 'CVR',
+        MAX(f.year) AS 'Recent Year',
+        f.profit_loss AS 'Profit/Loss',
+        f.equity AS 'Equity',
+        f.solvency_ratio AS 'Solvency Ratio'
+    FROM financials f
+    JOIN company c ON f.cvr = c.cvr_number
+    WHERE c.industry_sector = ? AND f.year BETWEEN ? AND ?
+    GROUP BY f.cvr
+    HAVING COUNT(f.year) >= 5 AND f.solvency_ratio > 0.2 AND f.profit_loss < 0
+    ORDER BY f.profit_loss
+    """
+    cursor.execute(query, (sector_code, year_range[0], year_range[1]))
     return cursor.fetchall()
 
 # Main function to run the Streamlit dashboard
+# Main Function for the App
 def run_dashboard():
-    # Apply custom CSS styles to the Streamlit app
     apply_custom_css()
-    # Create a sidebar header for filters
-    st.sidebar.header("Filters")
-    # Retrieve and display sector choices in the sidebar
+    st.sidebar.header("Filters 🔍")
     sectors = get_sector_choices()
     sector_choice = st.sidebar.selectbox("Select Sector", sectors, format_func=lambda x: sector_mappings.get(x, x))
 
-    # Get the available year range from the database
     min_year, max_year = get_year_range()
-    # Allow the user to select a start year within the range
     start_year = st.sidebar.text_input("Start Year", value=str(min_year))
-    # Allow the user to select an end year within the range
     end_year = st.sidebar.text_input("End Year", value=str(max_year))
 
-    # Attempt to convert the selected year range to integers
     try:
         selected_start_year = int(start_year)
         selected_end_year = int(end_year)
     except ValueError:
-        # Display an error message if the conversion fails and revert to the full range
         st.sidebar.error("Please enter valid years")
         selected_start_year, selected_end_year = min_year, max_year
         
-    # Map the selected sector choice to its code
-    sector_code = next(code for code, name in sector_mappings.items() if name == sector_choice)
+    sector_code = next(code for code, name in sector_mappings.items() if name == sector_choice)  # Convert sector name to code
     
-    # Display the main header for the dashboard
     st.header("Investor Dashboard")
-    # Create a sidebar selection box for different data views
-    view_data = st.sidebar.selectbox("View Data", ["Financial Trends", "Financial Health Indicators", "Sector Comparison", "Company Analysis", "Company to Company Comparison", "Company Information"])
+    view_data = st.sidebar.selectbox("View Data", ["Financial Trends Analysis 📊", "Financial Health Indicators 💪", "Sector Comparison ⚖️", "Company Analysis 🔎", "Multi-Company Comparison 🤝", "Company Information 🛈", "Hidden Gems: Profit Dips & Financial Strength 🌟"])
 
-    # Handle different data views based on the user's selection
-    if view_data == "Financial Trends":
-        # Fetch and display financial trends for the selected sector and year range
+    if view_data == "Financial Trends Analysis 📊":
+        st.header('Financial Trends Analysis')
         trends_data = fetch_financial_trends(sector_choice, (selected_start_year, selected_end_year))
         if trends_data:
-            # Convert the fetched data into a DataFrame
             trends_df = pd.DataFrame(trends_data, columns=['Year', 'Average Profit/Loss', 'Average Equity'])
-            # Create a line chart for the financial trends
             fig = px.line(trends_df, x='Year', y=['Average Profit/Loss', 'Average Equity'], title = f'Financial Trends for {sector_choice}', markers=True)
-            # Configure chart axes and layout
             fig.update_xaxes(title_text='Year')
             fig.update_yaxes(title_text='Values in DKK', tickprefix="DKK")
             fig.update_layout(legend_title_text='Metric')
-            # Display the chart in the Streamlit app
             st.plotly_chart(fig, use_container_width=True)
             
-            # Display a detailed explanation of the financial trends
+            # Explanation text
             st.markdown(f"""
-            The Financial Trends graph above displays the average profit/loss and equity for the {sector_choice} sector over the selected period from {selected_start_year} to {selected_end_year}. These trends offer insights into the financial trajectory and stability of the sector.
+            The Financial Trends Analysis graph above displays the average profit/loss and equity for the {sector_choice} sector over the selected period from {selected_start_year} to {selected_end_year}. These trends offer insights into the financial trajectory and stability of the sector.
             
             - **Average Profit/Loss:** This measure indicates the overall profitability of the sector. Positive values represent a net profit, while negative values indicate a net loss. Trends in this metric can show whether the sector is becoming more or less profitable over time.
             
@@ -359,25 +390,19 @@ def run_dashboard():
             By analyzing these trends, you, as an investor, can better assess how well the sector is doing financially and how stable it is over time. This information is crucial for making informed choices about where to invest your money and how to plan your financial strategy effectively.
             """)
         else:
-            # Display a message if no financial trends data is available
             st.write("No financial trends available for the selected sector and year range.")
     
-    elif view_data == "Financial Health Indicators":
-        # Fetch and display financial health indicators for the selected sector and year range
+    elif view_data == "Financial Health Indicators 💪":
+        st.header('Financial Health Indicators')
         health_data = fetch_financial_health_indicators(sector_choice, (selected_start_year, selected_end_year))
         if health_data:
-            # Convert the fetched data into a DataFrame
             health_df = pd.DataFrame(health_data, columns=['Year', 'Average ROA', 'Average ROI', 'Average Solvency Ratio'])
-            # Create a line chart for the financial health indicators
             fig = px.line(health_df, x='Year', y=['Average ROA', 'Average ROI', 'Average Solvency Ratio'], title=f'Financial Health Indicators of {sector_choice}', markers=True)
-            # Configure chart axes and layout
             fig.update_xaxes(title_text='Year')
             fig.update_yaxes(title_text='Ratio/Percentage', tickprefix="DKK")
             fig.update_layout(legend_title_text='Indicator')
-            # Display the chart in the Streamlit app
             st.plotly_chart(fig, use_container_width=True)
             
-            # Display a detailed explanation of the financial health indicators
             st.markdown(f"""
             The graph above presents the financial health indicators for the {sector_choice} sector over the selected period from {selected_start_year} to {selected_end_year}. These indicators provide insights into the sector's financial stability and performance. 
 
@@ -388,57 +413,47 @@ def run_dashboard():
             These metrics together provide a comprehensive view of the sector’s financial health and operational efficiency.
             """)
         else:
-            # Display a message if no financial health data is available
             st.write("No financial health data available for the selected sector and year range.")
                 
-    elif view_data == "Sector Comparison":
-        # Fetch and display a list of companies in the selected sector for comparison
+    elif view_data == "Sector Comparison ⚖️":
+        st.header('Sector Comparison')
         companies = fetch_companies_in_sector(sector_code)
         if companies:
-            # Allow the user to select a company from the list for comparison
             selected_company_tuple = st.sidebar.selectbox("Select a Company for Comparison", companies, format_func=lambda x: x[1])
-            # Extract the CVR number and name of the selected company
             cvr_number = selected_company_tuple[0]
             company_name = selected_company_tuple[1]
-            # Get the full name of the selected sector for display
             sector_name = sector_mappings.get(sector_code, "Selected Sector")
             
-            # Display comparison data when the user clicks the 'Compare with Sector' button
             if st.sidebar.button('Compare with Sector'):
                 display_sector_comparison(cvr_number, sector_code, (selected_start_year, selected_end_year), company_name, sector_name)
         else:
-            # Display a message if no companies are available for comparison in the selected sector
             st.write("No companies available in the selected sector.")
             
-    elif view_data == "Company Analysis":
-        # Fetch and display a list of companies in the selected sector for analysis
+    elif view_data == "Company Analysis 🔎":
+        st.header('Company Analysis')
         companies = fetch_companies_in_sector(sector_code)
         if companies:
-            # Allow the user to select a company from the list for analysis
             selected_company = st.sidebar.selectbox("Select a Company for Analysis", companies, format_func=lambda x: x[1])
-            # Extract the CVR number of the selected company
-            cvr_number = selected_company[0]
+            cvr_number = selected_company[0]  # Get the CVR number of the selected company
             
-            # Display financial data for the selected company when the user clicks the 'Show Financial Data' button
             if st.sidebar.button('Show Financial Data'):
                 company_data = fetch_company_financial_history(cvr_number, (selected_start_year, selected_end_year))
                 if company_data:
-                    # Convert the fetched data into a DataFrame
                     df = pd.DataFrame(company_data, columns=['Year', 'Profit/Loss (DKK)', 'Equity', 'ROA'])
                     
-                    # Create and display a line chart for the company's profit/loss history
+                    # Profit/Loss Chart
                     profit_loss_fig = px.line(df, x='Year', y='Profit/Loss (DKK)', title=f'Profit/Loss of {selected_company[1]}')
                     st.plotly_chart(profit_loss_fig, use_container_width=True)
 
-                    # Create and display a line chart for the company's equity history
+                    # Equity Chart
                     equity_fig = px.line(df, x='Year', y='Equity', title=f'Equity of {selected_company[1]}')
                     st.plotly_chart(equity_fig, use_container_width=True)
 
-                    # Create and display a line chart for the company's ROA history
+                    # ROA Chart
                     roa_fig = px.line(df, x='Year', y='ROA', title=f'Return on Assets (ROA) of {selected_company[1]}')
                     st.plotly_chart(roa_fig, use_container_width=True)
                     
-                    # Display a detailed explanation of the company's financial analysis
+                    # Detailed explanation text
                     st.markdown(f"""
                     The financial analysis of **{selected_company[1]}** shows the annual Profit/Loss (DKK), Equity, and Return on Assets (ROA). These metrics are crucial for assessing the company's financial health and operational efficiency.
                 
@@ -449,61 +464,72 @@ def run_dashboard():
                     This comprehensive financial overview helps in making informed investment decisions.
                     """)   
                 else:
-                    # Display a message if no financial data is available for the selected company
                     st.write("No financial data available for the selected company.")
                 
-    elif view_data == "Company to Company Comparison":
-        # Fetch and display a list of companies in the selected sector for comparison
+    elif view_data == "Multi-Company Comparison 🤝":
+        st.header('Multi-Company Comparison')
         companies = fetch_companies_in_sector(sector_code)
         if companies:
-            # Create a list of company options for comparison
             company_options = [(cvr, name) for cvr, name in companies]
-            # Allow the user to select the first company for comparison
-            cvr_number1, company_name1 = st.sidebar.selectbox("Select the first company for comparison", company_options, format_func=lambda x: x[1])
-            # Allow the user to select the second company for comparison
-            cvr_number2, company_name2 = st.sidebar.selectbox("Select the second company for comparison", company_options, format_func=lambda x: x[1])
+            selected_companies = st.multiselect("Select companies for comparison", company_options, format_func=lambda x: x[1])
 
-            # Display comparison data when the user clicks the 'Compare Companies' button
-            if st.sidebar.button('Compare Companies'):
-                comparison_data = fetch_financial_data_for_two_companies(cvr_number1, cvr_number2, (selected_start_year, selected_end_year))
+            if st.button('Compare Companies'):
+                comparison_data = []
+                for cvr_number, company_name in selected_companies:
+                    company_data = fetch_financial_data_for_companies(cvr_number, (selected_start_year, selected_end_year))
+                    for data in company_data:
+                        comparison_data.append((company_name,) + data)
+
                 if comparison_data:
-                    # Convert the fetched data into a DataFrame and add a 'Company' column for identification
-                    df = pd.DataFrame(comparison_data, columns=['CVR', 'Year', 'Profit/Loss (DKK)', 'Equity', 'ROA'])
-                    df['Company'] = df['CVR'].map({cvr_number1: company_name1, cvr_number2: company_name2})
+                    df = pd.DataFrame(comparison_data, columns=['Company', 'CVR', 'Year', 'Profit/Loss (DKK)', 'Equity', 'ROA'])
                     
-                    # Create and display bar charts for financial comparison between the two companies
-                    for metric in ['Profit/Loss (DKK)', 'Equity', 'ROA']:
-                        fig = px.bar(df, x='Company', y=metric, barmode='group', color='Company', title=f'{metric} Comparison for {company_name1} vs {company_name2}')
-                        fig.update_xaxes(title_text='Company')
-                        fig.update_yaxes(title_text=metric)
-                        st.plotly_chart(fig, use_container_width=True)
-                        
-                    # Display a detailed explanation of the company-to-company financial comparison
-                    st.markdown(f"""
-                    Comparing **{company_name1}** and **{company_name2}** provides a side-by-side view of their financial performance. This comparison includes Profit/Loss, Equity, and Return on Assets (ROA), key metrics that highlight each company's financial strengths and weaknesses.
-                    - **Profit/Loss** comparison reveals which company is more profitable.
-                    - **Equity** comparison shows the financial stability and net value of each company.
-                    - **ROA** comparison indicates how effectively each company uses its assets to generate profit.
+                    styled_df = style_dataframe(df)
+                    st.dataframe(styled_df)
                     
-                    This information aids in making strategic investment decisions, identifying which company presents a better financial profile.
+                    st.markdown("""
+                    **Financial Performance Comparison:**
+                    
+                    The selected companies are compared based on their financial performance metrics such as Profit/Loss, Equity, and Return on Assets (ROA). These metrics highlight the financial strengths and weaknesses of each company, providing insights into their profitability, financial stability, and asset utilization efficiency.
+                    
+                    This comparative analysis aids investors in making strategic investment decisions, identifying which companies present a better financial profile or show signs of potential recovery or growth.
+                    
                     """)
                 else:
-                    # Display a message if no data is available for the selected companies
                     st.write("No data available for the selected companies.")
-                    
-    elif view_data == "Company Information":
-        # Fetch and display a list of companies in the selected sector for information viewing
+               
+    elif view_data == "Company Information 🛈":
+        st.header("Company Information")
         companies = fetch_companies_in_sector(sector_code)
         if companies:
-            # Create a list of company options for information viewing
             company_options = [(cvr, name) for cvr, name in companies]
-            # Allow the user to select a company for viewing its information
             selected_company = st.sidebar.selectbox("Select a company", company_options, format_func=lambda x: x[1], key="company_info")
-            # Extract the CVR number of the selected company
-            selected_cvr = selected_company[0]
+            selected_cvr = selected_company[0]  # Assuming selected_company is a tuple (cvr_number, company_name)
 
-            # Display the information for the selected company
             display_company_info(selected_cvr)
         else:
-            # Display a message if no companies are available in the selected sector
             st.write("No companies available in the selected sector.")
+            
+    elif view_data == "Hidden Gems: Profit Dips & Financial Strength 🌟":
+        st.header("Hidden Gems: Profit Dips & Financial Strength")
+        st.markdown("""
+        **Hidden Gems** are companies within the selected sector that have demonstrated strong financial health but experienced recent declines in profitability. This feature aims to uncover potential investment opportunities in companies that may be undervalued or poised for a rebound. These companies are selected based on specific financial criteria that indicate solid underlying value despite recent performance dips.
+
+        - **Company Name:** The name of the company.
+        - **CVR:** The Central Business Register number, unique identifier for the company.
+        - **Recent Year:** The most recent year of financial data considered for this analysis.
+        - **Profit/Loss:** The net income or net loss for the recent year. A decline in this metric may indicate a temporary setback, offering potential for rebound.
+        - **Equity:** Represents the company's total assets minus total liabilities. Higher equity indicates financial stability and less reliance on debt.
+        - **Solvency Ratio:** A key indicator of financial health, measuring a company's ability to meet its long-term obligations. A higher solvency ratio suggests a lower risk of default.
+
+        The companies listed below are identified as hidden gems within the selected sector. They have strong equity and solvency ratios, suggesting good financial health, but have shown a decline in profit/loss figures recently, which could present undervalued investment opportunities.
+        """)
+        
+        hidden_gems_data = get_hidden_gems(sector_code, (selected_start_year, selected_end_year))
+        hidden_gems_df = pd.DataFrame(hidden_gems_data, columns=['Company Name', 'CVR', 'Recent Year', 'Profit/Loss', 'Equity', 'Solvency Ratio'])
+
+        if not hidden_gems_df.empty:
+            styled_hidden_gems_df = style_hidden_gems_dataframe(hidden_gems_df)
+            st.dataframe(styled_hidden_gems_df)
+
+        else:
+            st.write("No hidden gems found in the selected sector during the specified time frame.")
