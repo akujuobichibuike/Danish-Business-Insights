@@ -18,16 +18,16 @@ pip install -r requirements.txt
 streamlit run main.py
 ```
 ## Features and Functionalities
-- **Financial Trends Analysis**: View historical financial trends within selected sectors, including average profit/loss and equity over time.
+- **Financial Trends Analysis 📊:** Explore the financial dynamics of selected sectors, tracking key metrics like average profit/loss and equity.
   ![Financial Trends Analysis](images/financial-trends.png "Financial Trends Analysis")
   
-- **Financial Health Indicators**: Analyze key financial ratios and metrics like Return on Assets and Solvency Ratio to gauge the health of sectors.
+- **Financial Health Indicators 💪**: Analyze key financial ratios and metrics like Return on Assets and Solvency Ratio to gauge the health of sectors.
   ![Financial Health Indicators](images/financial-health-indicators.png "Financial Health Indicators")
   
-- **Sector Comparison**: Compare financial performance metrics of selected companies against sector averages.
+- **Sector Comparison ⚖️**: Compare financial performance metrics of selected companies against sector averages.
   ![Sector Comparison](images/sector-comparison.png "Sector Comparison")
   
-- **Company Analysis**: Conduct deep dives into the financial history and performance of individual companies.
+- **Company Analysis 🔍**: Conduct deep dives into the financial history and performance of individual companies.
 - 
   ![Company Analysis - Profit/Loss](images/Analysis1.png "Company Analysis - Profit/Loss")
   
@@ -35,17 +35,20 @@ streamlit run main.py
   
   ![Company Analysis - Return On Assets (ROA)](images/Analysis3.png "Company Analysis - Return On Assets (ROA)")
   
-- **Company to Company Comparison**: Evaluate and compare the financial standing of two companies side-by-side.
+**Multi-Company Comparison 🤝:** Conduct comparative analyses of multiple companies within a sector, unveiling the strongest investment prospects based on comprehensive financial data.
   
-  ![Company to Company Comparison - Profit/Loss](images/c2c1.png "Company to Company Comparison - Profit/Loss")
+  ![Multi-Company Comparison](images/Multi.png " ")
   
-  ![Company to Company Comparison - Equity](images/c2c2.png "Company to Company Comparison - Equity")
+  ![Multi-Company Comparison](images/Multi1.png " ")
   
   ![Company to Company Comparison - Return On Assets (ROA)](images/c2c3.png "Company to Company Comparison - Return on Assets (ROA)")
 
-- **Company Information**: Provides detailed insights into a specific company, including its sector, contact details, financial health, and operational purpose, aiding investors in making informed decisions about their investments.
-  
+- **Company Information 🛈**: Provides detailed insights into a specific company, including its sector, contact details, financial health, and operational purpose, aiding investors in making informed decisions about their investments.
   ![Company Information](images/compinfo.png "Company Information")
+  
+- **Hidden Gems 💎:** Uncover undervalued companies with strong financial health but recent profit dips, presenting potential rebound opportunities.
+  ![Hidden Gems](images/gems.png " ")
+
  
 ## Technologies Used
 - Python
