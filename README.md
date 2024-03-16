@@ -40,8 +40,6 @@ streamlit run main.py
   ![Multi-Company Comparison](images/Multi.png " ")
   
   ![Multi-Company Comparison](images/Multi1.png " ")
-  
-  ![Company to Company Comparison - Return On Assets (ROA)](images/c2c3.png "Company to Company Comparison - Return on Assets (ROA)")
 
 - **Company Information 🛈**: Provides detailed insights into a specific company, including its sector, contact details, financial health, and operational purpose, aiding investors in making informed decisions about their investments.
   ![Company Information](images/compinfo.png "Company Information")
