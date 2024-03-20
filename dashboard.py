@@ -546,12 +546,12 @@ def run_dashboard():
         Below are the hidden gems from the "{sector_choice}" sector, showcasing strong equity and solvency yet recent profit dips.
         """)
     
-    hidden_gems_data = get_hidden_gems(sector_code, (selected_start_year, selected_end_year))
-    hidden_gems_df = pd.DataFrame(hidden_gems_data, columns=['Company Name', 'CVR', 'Recent Year', 'Profit/Loss', 'Equity', 'Solvency Ratio'])
+        hidden_gems_data = get_hidden_gems(sector_code, (selected_start_year, selected_end_year))
+        hidden_gems_df = pd.DataFrame(hidden_gems_data, columns=['Company Name', 'CVR', 'Recent Year', 'Profit/Loss', 'Equity', 'Solvency Ratio'])
 
-    if not hidden_gems_df.empty:
-        styled_hidden_gems_df = style_hidden_gems_dataframe(hidden_gems_df)
-        st.dataframe(styled_hidden_gems_df)
-    else:
-        st.write(f"No hidden gems found in the {sector_choice} sector during the specified time frame.")
+        if not hidden_gems_df.empty:
+            styled_hidden_gems_df = style_hidden_gems_dataframe(hidden_gems_df)
+            st.dataframe(styled_hidden_gems_df)
+        else:
+            st.write(f"No hidden gems found in the {sector_choice} sector during the specified time frame.")
 
