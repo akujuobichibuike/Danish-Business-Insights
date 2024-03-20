@@ -278,6 +278,26 @@ def display_sector_comparison(cvr_number, sector_code, year_range, company_name,
         # Display a message if no data is available for comparison
         st.write(f"No data available for {company_name} or {sector_name} sector.")
 
+def style_dataframe(df):
+    # Apply styling only to numerical columns
+    numerical_columns = ['Profit/Loss (DKK)', 'Equity', 'ROA']  # Update this list with your numerical columns
+    
+    # Define a function to apply conditional styling
+    def apply_styling(value):
+        if isinstance(value, (int, float)):  # Check if the value is numeric
+            # Use a deeper shade of red for negative and green for positive
+            return f'background-color: {"#ff4d4d" if value < 0 else "#29a329"}'
+        return ''  # Return an empty string for non-numeric values
+    
+    # Apply the styling function to the DataFrame and format the numbers
+    styled = df.style.applymap(apply_styling, subset=numerical_columns).format({
+        'Profit/Loss (DKK)': "{:,.0f} DKK",  # Format with comma as thousands separator and no decimal places
+        'Equity': "{:,.0f} DKK",  # Same formatting for Equity
+        'ROA': "{:.2%}"  # Format ROA as percentage with two decimal places
+    })
+    
+    return styled  
+
 def style_hidden_gems_dataframe(df):
     # Apply styling only to numerical columns that exist in the DataFrame
     numerical_columns = ['Profit/Loss', 'Equity']  # Adjust based on actual data columns
