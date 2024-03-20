@@ -531,25 +531,27 @@ def run_dashboard():
             
     elif view_data == "Hidden Gems: Profit Dips & Financial Strength 🌟":
         st.header("Hidden Gems: Profit Dips & Financial Strength")
-        st.markdown("""
-        **Hidden Gems** are companies within the selected sector that have demonstrated strong financial health but experienced recent declines in profitability. This feature aims to uncover potential investment opportunities in companies that may be undervalued or poised for a rebound. These companies are selected based on specific financial criteria that indicate solid underlying value despite recent performance dips.
-
-        - **Company Name:** The name of the company.
-        - **CVR:** The Central Business Register number, unique identifier for the company.
-        - **Recent Year:** The most recent year of financial data considered for this analysis.
-        - **Profit/Loss:** The net income or net loss for the recent year. A decline in this metric may indicate a temporary setback, offering potential for rebound.
-        - **Equity:** Represents the company's total assets minus total liabilities. Higher equity indicates financial stability and less reliance on debt.
-        - **Solvency Ratio:** A key indicator of financial health, measuring a company's ability to meet its long-term obligations. A higher solvency ratio suggests a lower risk of default.
-
-        The companies listed below are identified as hidden gems within the selected sector. They have strong equity and solvency ratios, suggesting good financial health, but have shown a decline in profit/loss figures recently, which could present undervalued investment opportunities.
+        st.markdown(f"""
+        **Hidden Gems in {sector_choice}**
+    
+        Explore companies with solid financials that recently faced profit declines. These hidden gems, poised for a potential rebound, offer intriguing investment opportunities:
+    
+        - **Company Name:** Identifies the business.
+        - **CVR:** Unique business registration number.
+        - **Recent Year:** Latest fiscal year analyzed.
+        - **Profit/Loss:** Net income or loss, indicating financial shifts.
+        - **Equity:** Company's financial stability metric.
+        - **Solvency Ratio:** Firm's capacity to fulfil long-term obligations.
+    
+        Below are the hidden gems from the "{sector_choice}" sector, showcasing strong equity and solvency yet recent profit dips.
         """)
-        
-        hidden_gems_data = get_hidden_gems(sector_code, (selected_start_year, selected_end_year))
-        hidden_gems_df = pd.DataFrame(hidden_gems_data, columns=['Company Name', 'CVR', 'Recent Year', 'Profit/Loss', 'Equity', 'Solvency Ratio'])
+    
+    hidden_gems_data = get_hidden_gems(sector_code, (selected_start_year, selected_end_year))
+    hidden_gems_df = pd.DataFrame(hidden_gems_data, columns=['Company Name', 'CVR', 'Recent Year', 'Profit/Loss', 'Equity', 'Solvency Ratio'])
 
-        if not hidden_gems_df.empty:
-            styled_hidden_gems_df = style_hidden_gems_dataframe(hidden_gems_df)
-            st.dataframe(styled_hidden_gems_df)
+    if not hidden_gems_df.empty:
+        styled_hidden_gems_df = style_hidden_gems_dataframe(hidden_gems_df)
+        st.dataframe(styled_hidden_gems_df)
+    else:
+        st.write(f"No hidden gems found in the {sector_choice} sector during the specified time frame.")
 
-        else:
-            st.write("No hidden gems found in the selected sector during the specified time frame.")
